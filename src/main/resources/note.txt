@@ -1,0 +1,35 @@
+1、在创建表结构的时候，有外键约束，导致当存在从表数据的时候，主表数据无法被删除。
+为什么会这样呢？ 假设即使有从表数据，主表也允许被删除，那么那些从表数据就变成脏数据了。
+对于这个问题通常有两种解决办法：
+1. 使用级联删除。即删除主表的时候，从表自动删除。 这样做在技术上最简单，但是在业务上最危险，不推荐。
+2. 删除有从表数据的主表时，提醒用户依然有从表数据，建议用户一条一条删除从表数据，再删除主表数据。 这样技术上无改动，业务上最安全。 建议采纳此种方案。
+
+2、图片及初始化sql语句(先清空已有数据)
+   相关图片已保存在img对于目录里，初始化sql语句文件为tmall_ssm.sql
+
+3、由于提交文件内容过大，导致git无法提交的处理方案
+   在代码对应文件夹里，打开Git Bash，用命令将http post的缓存改为50M(默认为1M)
+   git config http.postBuffer 52428800
+
+4、解决重启tomcat后，session中的用户等信息失效
+   4.1、保存到session中的所有实体都 implements Serializable，并且生成serialVersionUID字段
+   4.2、在tomcat的server.xml文件Host节点内，进行以下配置:其中 path="/" 表示项目访问路径
+   <Context path="/" docBase="E:\myLocation\tmall_ssm">
+        <Manager className="org.apache.catalina.session.PersistentManager"
+        debug="0"
+        saveOnRestart="true"
+        maxActiveSession="-1"
+        minIdleSwap="-1"
+        maxIdleSwap="-1"
+        maxIdleBackup="-1">
+        <Store className="org.apache.catalina.session.FileStore" directory="E:\temp"/>
+        </Manager>
+    </Context>
+    4.3、可在web.xml中配置session有效时间
+     <!--配置session有效期，单位为分钟-->
+    <session-config>
+        <session-timeout>60</session-timeout>
+    </session-config>
+
+
+    5.0

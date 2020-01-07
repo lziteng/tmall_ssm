@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+    <!--启动注解识别-->
+    <context:annotation-config/>
+
+    <context:component-scan base-package="cn.lzt.tmall.controller">
+        <context:include-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <mvc:annotation-driven/>
+
+    <!--方案一:开通静态资源的访问 (将静态资源的处理经由Spring MVC框架交回Web应用服务器处理):
+        将请求转由Web应用服务器默认的Servlet处理，如果不是静态资源的请求，才由DispatcherServlet继续处理l
+
+        方案二:由Spring MVC框架自己处理静态资源，并添加一些有用的附加值功能。<mvc:resources />允许静态资源放在任何地方，如WEB-INF目录下、类路径下等
+        使用<mvc:resources location="/,classpath:/META-INF/publicResources/" mapping="/resources/**"/>
+        -->
+    <mvc:default-servlet-handler/>
+
+    <!--拦截器:多个拦截器时，顺序执行-->
+    <mvc:interceptors>
+        <!--登录认证拦截器-->
+        <mvc:interceptor>
+            <!--/**表示所有url,包括子url路径-->
+            <mvc:mapping path="/fore*"/>
+            <bean class="cn.lzt.tmall.Interceptor.LoginInterceptor"/>
+        </mvc:interceptor>
+
+        <!--初始化数据拦截器-->
+        <mvc:interceptor>
+            <!--/**表示所有url,包括子url路径-->
+            <mvc:mapping path="/fore*"/>
+            <bean class="cn.lzt.tmall.Interceptor.OtherInterceptor"/>
+        </mvc:interceptor>
+
+        <!--后台管理页面拦截器-->
+        <mvc:interceptor>
+            <!--/**表示所有url,包括子url路径-->
+            <mvc:mapping path="/web/**"/>
+            <bean class="cn.lzt.tmall.Interceptor.AdminPageInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- 视图定位 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass"
+                  value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!-- 对上传文件的解析-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--上传文件最大尺寸为5MB-->
+        <property name="maxUploadSize">
+            <value>5242880</value>
+        </property>
+    </bean>
+
+</beans>
